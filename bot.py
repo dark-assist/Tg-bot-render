@@ -8,7 +8,7 @@ import pytz
 import time
 
 # Configuration
-BOT_TOKEN = "7752412037:AAFFvZZr_1_vy-uxdal4MoCOXWAJ9NuI-G4"
+BOT_TOKEN = "7799333321:AAFnYX39VqF615G0I19SRxCQqQamV3BwHPM"
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
