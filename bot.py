@@ -1,7 +1,9 @@
+import os
 import telebot
 import requests
 import time
 import threading
+from flask import Flask
 
 BOT_TOKEN = "7318617660:AAFOfyGMFzAQbm5y4K2fbHdFf_lNK20QViw"
 ALLOWED_GROUP_ID = -1002255896839
@@ -10,6 +12,7 @@ like_request_tracker = {}
 VIP_USERS = {7798805438}
 
 bot = telebot.TeleBot(BOT_TOKEN)
+app = Flask(__name__)
 
 def call_api(region, uid):
     url = f"https://sanatani-ff-api.vercel.app//like?uid={uid}&server_name={region}"
@@ -116,4 +119,16 @@ def handle_like(message):
 
     threading.Thread(target=process_like, args=(message, region, uid)).start()
 
-bot.polling(none_stop=True)
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+# Thread to keep bot polling
+def run_bot():
+    print("Bot polling started...")
+    bot.polling(non_stop=True)
+
+if __name__ == "__main__":
+    threading.Thread(target=run_bot).start()
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
