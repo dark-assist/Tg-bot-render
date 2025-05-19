@@ -68,7 +68,7 @@ def process_like(message, region, uid):
                                 f"🔸 **Likes Before:** `{response.get('LikesbeforeCommand', 'N/A')}`\n"
                                 f"🔸 **Likes After:** `{response.get('LikesafterCommand', 'N/A')}`\n"
                                 f"🔸 **Likes By Bot:** `{response.get('LikesGivenByAPI', 'N/A')}`\n\n"
-                                "🗿 **SHARE US FOR MORE:**\n https://youtube.com/@teamxcutehack",
+                                "🗿 **SHARE US FOR MORE:**\n https://youtube.com/@SanataniHackers",
                         parse_mode="Markdown"
                     )
                 )
@@ -85,7 +85,7 @@ def process_like(message, region, uid):
                  f"🔸 **Likes Before:** `{response.get('LikesbeforeCommand', 'N/A')}`\n"
                  f"🔸 **Likes After:** `{response.get('LikesafterCommand', 'N/A')}`\n"
                  f"🔸 **Likes By Bot:** `{response.get('LikesGivenByAPI', 'N/A')}`\n\n"
-                 "🗿 **SHARE US FOR MORE:**\n https://youtube.com/@teamxcutehack",
+                 "🗿 **SHARE US FOR MORE:**\n https://youtube.com/@SanataniHackers",
             parse_mode="Markdown"
         )
     else:
@@ -108,13 +108,13 @@ def handle_like(message):
 
     args = message.text.split()
     if len(args) != 3:
-        bot.reply_to(message, "❌ Incorrect format! Use: `/like {region} {uid}`\n📌 Example: `/like ind 8385763215`", parse_mode="Markdown")
+        bot.reply_to(message, "❌ Incorrect format! Use: `/like {region} {uid}`\n📌 Example: `/like ind 1877437384`", parse_mode="Markdown")
         return
 
     region, uid = args[1], args[2]
 
     if not region.isalpha() or not uid.isdigit():
-        bot.reply_to(message, "⚠️ Invalid input! Region should be text and UID should be numbers.\n📌 Example: `/like ind 8385763215`")
+        bot.reply_to(message, "⚠️ Invalid input! Region should be text and UID should be numbers.\n📌 Example: `/like ind 1877437384`")
         return
 
     threading.Thread(target=process_like, args=(message, region, uid)).start()
