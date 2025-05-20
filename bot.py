@@ -173,7 +173,7 @@ def like_cmd(msg):
             f"LIKE GIVEN: {data.get('LikesGivenByAPI', '0')}\n"
             f"```\n"
             "Player got daily 100 likes | subs [YOUTUBE](https://youtube.com/@sanatanihackers?si=C2K1nRHZ74tjgjbp) | "
-            "More info: [VIP LIKE SxA](https://t.me/sanatani_x_anonymouss) | @sanatani_x_anonymouss"
+            "More info: [VIP LIKE SxA](https://t.me/sanatani_x_anonymouss) | @sanatani\\_x\\_anonymouss"
         )
         bot.edit_message_text(reply, chat_id, status_msg.message_id, parse_mode="Markdown")
     else:
@@ -201,7 +201,7 @@ def setremain_cmd(msg):
 def promo_cmd(msg):
     promo = (
         "Player got daily 100 likes | subs [YOUTUBE](https://youtube.com/@sanatanihackers?si=C2K1nRHZ74tjgjbp) | "
-        "More info: [VIP LIKE SxA](https://t.me/sanatani_x_anonymouss) | @sanatani_x_anonymouss"
+        "More info: [VIP LIKE SxA](https://t.me/sanatani_x_anonymouss) | @sanatani\\_x\\_anonymouss"
     )
     safe_reply(msg, promo, parse_mode="Markdown", disable_web_page_preview=True)
 
