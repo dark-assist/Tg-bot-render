@@ -15,7 +15,7 @@ app = Flask(__name__)
 AUTHORIZED_OWNERS = [7798805438]  # Add all admin IDs
 ALLOWED_GROUP_IDS = {-1002255896839}
 REQUIRED_JOIN_GROUP = -1002255896839
-DEFAULT_DAILY_LIMIT = 1
+DEFAULT_DAILY_LIMIT = 30
 remaining_likes = 30  # For global counter
 
 # State
