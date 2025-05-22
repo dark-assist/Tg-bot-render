@@ -25,7 +25,7 @@ daily_usage = {}
 allowed_users = {}
 last_reset = datetime.datetime.now().date()
 
-API_URL = "https://sanatani-ff-api.vercel.app//like?uid={uid}&server_name={region}"
+API_URL = "https://sanatani-ff-api.vercel.app/like?uid={uid}&server_name={region}"
 
 TIMEZONES = {
     "ind": pytz.timezone("Asia/Kolkata"),
