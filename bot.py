@@ -74,8 +74,8 @@ def restricted_group(func):
         if not is_user_joined(msg.from_user.id):
             return safe_reply(
                 msg,
-                "📛 *To use this bot, please join our Youtube Channel first:*\n"
-                "🔗 [Join](https://youtube.com/@sanatanihackers?si=C2K1nRHZ74tjgjbp)\n\n"
+                "📛 *To use this bot, please join our Main TG Group first:*\n"
+                "🔗 [Join](https://t.me/+Dz7qm9CP741kODU1)\n\n"
                 "✅ After joining, resend your command.",
                 parse_mode="Markdown",
                 disable_web_page_preview=True
