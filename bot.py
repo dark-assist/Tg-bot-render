@@ -6,9 +6,11 @@ import requests
 import datetime
 import pytz
 import time
+from io import BytesIO
+from PIL import Image
 
 # Configuration
-BOT_TOKEN = "7799333321:AAFnYX39VqF615G0I19SRxCQqQamV3BwHPM"
+BOT_TOKEN = "7318617660:AAFOfyGMFzAQbm5y4K2fbHdFf_lNK20QViw"
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
@@ -26,6 +28,8 @@ allowed_users = {}
 last_reset = datetime.datetime.now().date()
 
 API_URL = "https://sanatani-ff-api.vercel.app/like?uid={uid}&server_name={region}"
+BAN_CHK_URL = "https://sanatani-ff-id-ban-chker.vercel.app/uditanshu-region/ban-info"
+INFO_API_URL = "https://infobot-mocha.vercel.app/player"
 
 TIMEZONES = {
     "ind": pytz.timezone("Asia/Kolkata"),
@@ -67,6 +71,16 @@ def is_user_joined(user_id):
     except:
         return False
 
+def escape_html(text):
+    return str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+def format_section(title, data_dict):
+    """Format any dict into HTML section"""
+    lines = [f"<b>{title}</b>"]
+    for key, value in data_dict.items():
+        lines.append(f"• <b>{escape_html(str(key))}</b>: {escape_html(value)}")
+    return "\n".join(lines)
+
 def restricted_group(func):
     def wrapper(msg):
         if not is_group_allowed(msg.chat.id, msg.from_user.id):
@@ -83,7 +97,189 @@ def restricted_group(func):
         return func(msg)
     return wrapper
 
-# Commands
+@bot.message_handler(commands=['player'])
+def handle_player(message):
+    chat_id = message.chat.id
+
+    if message.chat.type == "private":
+        bot.reply_to(message, "❌ This bot cannot be used in private chats.")
+        return
+
+    if chat_id not in ALLOWED_GROUP_IDS:
+        bot.reply_to(message, "❌ This group is not authorized to use this bot.")
+        return
+
+    parts = message.text.strip().split()
+    if len(parts) != 3:
+        bot.reply_to(message, "Usage: /player <UID> <region>\nExample: /player 1692167462 ind")
+        return
+
+    uid, region = parts[1], parts[2].lower()
+
+    status_msg = bot.reply_to(message, "<i>Checking player info…</i>", parse_mode="HTML")            
+    try:
+        res = requests.get(INFO_API_URL, params={"uid": uid, "region": region})
+        data = res.json()
+
+        if res.status_code != 200 or "basicinfo" not in data:
+            text = f"<b>Error</b>: {escape_html(data.get('error', 'Unexpected response'))}"
+        else:
+            lines = []
+
+            if data.get("basicinfo"):
+                lines.append(format_section("🚀 Basic Info", data["basicinfo"][0]))
+                lines.append("")
+
+            if data.get("claninfo"):
+                lines.append(format_section("🏰 Clan Info", data["claninfo"][0]))
+                lines.append("")
+
+            if data.get("clanadmin"):
+                lines.append(format_section("🛡️ Clan Admin Info", data["clanadmin"][0]))
+                lines.append("")
+
+            if data.get("credit"):
+                lines.append(f"<i>Credit: {escape_html(data['credit'])}</i>")
+
+            text = "\n".join(lines)
+
+        bot.edit_message_text(
+            text,
+            chat_id=chat_id,
+            message_id=status_msg.message_id,
+            parse_mode="HTML"
+        )
+
+    except Exception as e:
+        bot.edit_message_text(
+            f"<b>Failed to fetch data:</b> {escape_html(str(e))}",
+            chat_id=chat_id,
+            message_id=status_msg.message_id,
+            parse_mode="HTML"
+        )
+
+@bot.message_handler(commands=['baninfo'])
+def handle_baninfo(message):
+    chat_id = message.chat.id
+
+    if message.chat.type == "private":
+        bot.reply_to(message, "This bot cannot be used in private chats.")
+        return
+
+    if chat_id not in ALLOWED_GROUP_IDS:
+        bot.reply_to(message, "This group is not authorized to use this bot.")
+        return
+
+    parts = message.text.strip().split()
+    if len(parts) != 2:
+        bot.reply_to(message, "Usage: /baninfo <UID>")
+        return
+
+    uid = parts[1]
+
+    # Send "checking..." message and save the sent message to edit later
+    status_msg = bot.reply_to(message, "<i>Checking if banned or not...</i>", parse_mode="HTML")
+
+    try:
+        res = requests.get(BAN_CHK_URL, params={"uid": uid})
+        data = res.json()
+
+        if "error" in data:
+            new_text = f"<b>Error</b>: {escape_html(data['error'])}"
+        else:
+            new_text = (
+                f"<b>Nickname</b>: {escape_html(data['nickname'])}\n"
+                f"<b>Region</b>: {escape_html(data['region'])}\n"
+                f"<b>Ban Status</b>: {escape_html(data['ban_status'])}"
+            )
+            if data.get("ban_period"):
+                new_text += f"\n<b>Ban Period</b>: {escape_html(data['ban_period'])}"
+
+        # Edit the message with final result
+        bot.edit_message_text(new_text, chat_id=chat_id, message_id=status_msg.message_id, parse_mode="HTML")
+
+    except Exception as e:
+        bot.edit_message_text(
+            f"<b>Failed to fetch data:</b> {escape_html(str(e))}",
+            chat_id=chat_id,
+            message_id=status_msg.message_id,
+            parse_mode="HTML"
+        )
+
+@bot.message_handler(commands=['spam'])
+def handle_spam(message):
+    # Check if message is from private chat
+    if message.chat.type == "private":
+        bot.reply_to(message, "Sorry, this command is not available in private chat.")
+        return
+
+    # Check if group is authorized
+    if message.chat.id not in ALLOWED_GROUP_IDS:
+        bot.reply_to(message, "This group is not authorized to use this bot.")
+        return
+
+    # Get UID from command
+    try:
+        uid = message.text.split()[1]
+    except IndexError:
+        bot.reply_to(message, "Please provide a UID. Usage: /spam <uid>")
+        return
+
+    # Call the API
+    url = f"https://sanatani-ff-api.vercel.app/spam?uid={uid}"
+    try:
+        response = requests.get(url)
+        data = response.json()
+        msg = (
+            f"**SPAM Result**\n"
+            f"Credit: {data.get('cradit')}\n"
+            f"Success: {data.get('success_count')}\n"
+            f"Failed: {data.get('failed_count')}"
+        )
+        bot.reply_to(message, msg, parse_mode='Markdown')
+    except Exception as e:
+        bot.reply_to(message, "API call failed or invalid response.")
+
+def is_authorized(chat_id):
+    return chat_id in ALLOWED_GROUP_IDS
+
+@bot.message_handler(commands=['banner'])
+def handle_banner(message):
+    chat_id = message.chat.id
+
+    if not is_authorized(chat_id):
+        bot.reply_to(message, "Sorry, this bot can only be used in authorized groups.")
+        return
+
+    try:
+        args = message.text.split()
+        if len(args) != 3:
+            bot.reply_to(message, "Usage: /banner <uid> <region>", reply_to_message_id=message.message_id)
+            return
+
+        uid = args[1]
+        region = args[2]
+        url = f"https://aditya-banner-v6op.onrender.com/banner-image?uid={uid}&region={region}"
+
+        response = requests.get(url)
+        if response.status_code == 200:
+            img = Image.open(BytesIO(response.content)).convert("RGBA")
+            img.thumbnail((512, 512))
+            output = BytesIO()
+            output.name = "sticker.webp"
+            img.save(output, format="WEBP")
+            output.seek(0)
+
+            # Send sticker as reply to user's message
+            bot.send_sticker(chat_id, output, reply_to_message_id=message.message_id)
+        else:
+            bot.reply_to(message, "Failed to fetch banner.", reply_to_message_id=message.message_id)
+    except Exception as e:
+        bot.reply_to(message, f"Error: {str(e)}", reply_to_message_id=message.message_id)
+
+@bot.message_handler(func=lambda m: m.chat.type == 'private')
+def block_private(message):
+    bot.send_message(message.chat.id, "You can't use this bot in private chat.")
 
 @bot.message_handler(commands=['allowgroup'])
 def allow_group(msg):
@@ -165,6 +361,8 @@ def like_cmd(msg):
         remaining_likes -= 1
         reply = (
             f"```\n"
+            f"OWNER: {data.get('OWNER', 'NULL')}\n"
+            f"Partner: {data.get('Guest Acc. Maintainer', 'NULL')}\n"
             f"UID: {data.get('UID', 'N/A')}\n"
             f"NAME: {data.get('PlayerNickname', 'Unknown')}\n\n"
             f"LIKE DETAILS\n\n"
@@ -215,7 +413,11 @@ def get_id(msg):
 def help_command(msg):
     help_text = (
         "🤖 *Like Bot Help Menu*\n\n"
-        "🔹 `/like region uid`\nSend 100 likes to a UID.\n*Example:* `/like bd 123456789`\n\n"
+        "🔹 `/like region uid`\nSend 100 likes to a UID.\n*Example:* `/like ind 1877437384`\n\n"
+        "🔹 `/spam region uid count`\nSend multiple like batches.\n*Example:* `/spam ind 1877437384 5`\n(Sends 5 x 100 = 500 likes)\n\n"
+        "🔹 `/banner uid region`\nFetch Banner and Avatar.\n*Example:* `/banner 1877437384 ind`\n\n"
+        "🔹 `/player uid region`\nFetch complete player profile info.\n*Example:* `/player 1692167462 ind`\n\n"
+        "🔹 `/baninfo uid`\nCheck if a user is banned or not.\n*Example:* `/baninfo 1692167462`\n\n"
         "🔹 `/vip user_id limit days`\nMake user VIP with custom daily like limit.\n\n"
         "🔹 `/allowgroup group_id limit`\nAllow a group to use the bot.\n\n"
         "🔹 `/remain`\nShow remaining global likes for today.\n\n"
@@ -223,6 +425,7 @@ def help_command(msg):
         "🔹 `/promo`\nShow promo message.\n\n"
         "💎 *For VIP access*, contact [SANATANI_x_ANONYMOUS](https://t.me/sanatani_x_anonymouss)"
     )
+
     safe_reply(msg, help_text, parse_mode="Markdown")
 
 
