@@ -414,10 +414,10 @@ def help_command(msg):
     help_text = (
         "🤖 *Like Bot Help Menu*\n\n"
         "🔹 `/like region uid`\nSend 100 likes to a UID.\n*Example:* `/like ind 1877437384`\n\n"
-        "🔹 `/spam region uid count`\nSend multiple like batches.\n*Example:* `/spam ind 1877437384 5`\n(Sends 5 x 100 = 500 likes)\n\n"
+        "🔹 `/spam uid`\nSend Friend Request Spam.\n*Example:* `/spam 1877437384`\n\n"
         "🔹 `/banner uid region`\nFetch Banner and Avatar.\n*Example:* `/banner 1877437384 ind`\n\n"
-        "🔹 `/player uid region`\nFetch complete player profile info.\n*Example:* `/player 1692167462 ind`\n\n"
-        "🔹 `/baninfo uid`\nCheck if a user is banned or not.\n*Example:* `/baninfo 1692167462`\n\n"
+        "🔹 `/player uid region`\nFetch complete player profile info.\n*Example:* `/player 1877437384 ind`\n\n"
+        "🔹 `/baninfo uid`\nCheck if a user is banned or not.\n*Example:* `/baninfo 1877437384`\n\n"
         "🔹 `/vip user_id limit days`\nMake user VIP with custom daily like limit.\n\n"
         "🔹 `/allowgroup group_id limit`\nAllow a group to use the bot.\n\n"
         "🔹 `/remain`\nShow remaining global likes for today.\n\n"
