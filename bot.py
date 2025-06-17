@@ -2,28 +2,13 @@ from flask import Flask
 import os
 import threading
 import telebot
+from telebot.types import Message, ChatMemberUpdated
 import requests
 import datetime
 import pytz
 import time
 from io import BytesIO
 from PIL import Image
-
-#help txt
-help_text = (
-        "🤖 *Like Bot Help Menu*\n\n"
-        "🔹 `/like region uid`\nSend 100 likes to a UID.\n*Example:* `/like ind 1877437384`\n\n"
-        "🔹 `/spam uid`\nSend Friend Request Spam.\n*Example:* `/spam 1877437384`\n\n"
-        "🔹 `/banner uid region`\nFetch Banner and Avatar.\n*Example:* `/banner 1877437384 ind`\n\n"
-        "🔹 `/player uid region`\nFetch complete player profile info.\n*Example:* `/player 1877437384 ind`\n\n"
-        "🔹 `/baninfo uid`\nCheck if a user is banned or not.\n*Example:* `/baninfo 1877437384`\n\n"
-        "🔹 `/vip user_id limit days`\nMake user VIP with custom daily like limit.\n\n"
-        "🔹 `/allowgroup group_id limit`\nAllow a group to use the bot.\n\n"
-        "🔹 `/remain`\nShow remaining global likes for today.\n\n"
-        "🔹 `/setremain count`\n(Owners only) Set remaining likes.\n\n"
-        "🔹 `/promo`\nShow promo message.\n\n"
-        "💎 *For VIP access*, contact [SANATANI_x_ANONYMOUS](https://t.me/sanatani_x_anonymouss)"
-)
 
 # Configuration
 BOT_TOKEN = "7799333321:AAFnYX39VqF615G0I19SRxCQqQamV3BwHPM"
@@ -112,13 +97,6 @@ def restricted_group(func):
             )
         return func(msg)
     return wrapper
-    
-@bot.chat_member_handler()
-def on_user_join(update: ChatMemberUpdated):
-    if update.new_chat_member.status == 'member':
-        user = update.new_chat_member.user
-        chat_id = update.chat.id
-        bot.send_message(chat_id, help_text)
 
 @bot.message_handler(commands=['player'])
 def handle_player(message):
@@ -395,6 +373,7 @@ def like_cmd(msg):
             f"```\n"
             "Player got daily 100 likes | subs [YOUTUBE](https://youtube.com/@sanatanihackers?si=C2K1nRHZ74tjgjbp) | "
             "More info: [VIP LIKE SxA](https://t.me/sanatani_x_anonymouss) | @sanatani\\_x\\_anonymouss"
+            "Join Our Official Like Group For Daily Likes [LINK](https://t.me/sanatani_ff_like_gc)"
         )
         bot.edit_message_text(reply, chat_id, status_msg.message_id, parse_mode="Markdown")
     else:
@@ -451,7 +430,35 @@ def help_command(msg):
 
     safe_reply(msg, help_text, parse_mode="Markdown")
 
+@bot.message_handler(content_types=['new_chat_members'])
+def welcome_new_members(message):
+    for new_user in message.new_chat_members:
+        name = new_user.first_name
+        chat_id = message.chat.id
+        help_text = (
+        "🤖 *Like Bot Help Menu*\n\n"
+        "🔹 `/like region uid`\nSend 100 likes to a UID.\n*Example:* `/like ind 1877437384`\n\n"
+        "🔹 `/spam uid`\nSend Friend Request Spam.\n*Example:* `/spam 1877437384`\n\n"
+        "🔹 `/banner uid region`\nFetch Banner and Avatar.\n*Example:* `/banner 1877437384 ind`\n\n"
+        "🔹 `/player uid region`\nFetch complete player profile info.\n*Example:* `/player 1877437384 ind`\n\n"
+        "🔹 `/baninfo uid`\nCheck if a user is banned or not.\n*Example:* `/baninfo 1877437384`\n\n"
+        "💎 *For VIP access*, contact [SANATANI_x_ANONYMOUS](https://t.me/sanatani_x_anonymouss)"
+    )
+        bot.send_message(chat_id, help_text, parse_mode="Markdown")
 
+@bot.message_handler(content_types=['new_chat_members'])
+def delete_join_message(message):
+    try:
+        bot.delete_message(message.chat.id, message.message_id)
+    except Exception as e:
+        print(f"Failed to delete join message: {e}")
+
+@bot.message_handler(content_types=['left_chat_member'])
+def delete_leave_message(message):
+    try:
+        bot.delete_message(message.chat.id, message.message_id)
+    except Exception as e:
+        print(f"Failed to delete leave message: {e}")
 
 @app.route('/')
 def home():
