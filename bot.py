@@ -9,6 +9,22 @@ import time
 from io import BytesIO
 from PIL import Image
 
+#help txt
+help_text = (
+        "🤖 *Like Bot Help Menu*\n\n"
+        "🔹 `/like region uid`\nSend 100 likes to a UID.\n*Example:* `/like ind 1877437384`\n\n"
+        "🔹 `/spam uid`\nSend Friend Request Spam.\n*Example:* `/spam 1877437384`\n\n"
+        "🔹 `/banner uid region`\nFetch Banner and Avatar.\n*Example:* `/banner 1877437384 ind`\n\n"
+        "🔹 `/player uid region`\nFetch complete player profile info.\n*Example:* `/player 1877437384 ind`\n\n"
+        "🔹 `/baninfo uid`\nCheck if a user is banned or not.\n*Example:* `/baninfo 1877437384`\n\n"
+        "🔹 `/vip user_id limit days`\nMake user VIP with custom daily like limit.\n\n"
+        "🔹 `/allowgroup group_id limit`\nAllow a group to use the bot.\n\n"
+        "🔹 `/remain`\nShow remaining global likes for today.\n\n"
+        "🔹 `/setremain count`\n(Owners only) Set remaining likes.\n\n"
+        "🔹 `/promo`\nShow promo message.\n\n"
+        "💎 *For VIP access*, contact [SANATANI_x_ANONYMOUS](https://t.me/sanatani_x_anonymouss)"
+)
+
 # Configuration
 BOT_TOKEN = "7799333321:AAFnYX39VqF615G0I19SRxCQqQamV3BwHPM"
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -96,6 +112,13 @@ def restricted_group(func):
             )
         return func(msg)
     return wrapper
+    
+@bot.chat_member_handler()
+def on_user_join(update: ChatMemberUpdated):
+    if update.new_chat_member.status == 'member':
+        user = update.new_chat_member.user
+        chat_id = update.chat.id
+        bot.send_message(chat_id, help_text)
 
 @bot.message_handler(commands=['player'])
 def handle_player(message):
