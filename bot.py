@@ -372,7 +372,7 @@ def like_cmd(msg):
             f"LIKE GIVEN: {data.get('LikesGivenByAPI', '0')}\n"
             f"```\n"
             "Player got daily 100 likes | subs [YOUTUBE](https://youtube.com/@sanatanihackers?si=C2K1nRHZ74tjgjbp) | "
-            "More info: [VIP LIKE SxA](https://t.me/sanatani_x_anonymouss) | @sanatani\\_x\\_anonymouss"
+            "More info: [VIP LIKE SxA](https://t.me/sanatani_x_anonymouss) | @sanatani\\_x\\_anonymouss | "
             "Join Our Official Like Group For Daily Likes [LINK](https://t.me/sanatani_ff_like_gc)"
         )
         bot.edit_message_text(reply, chat_id, status_msg.message_id, parse_mode="Markdown")
