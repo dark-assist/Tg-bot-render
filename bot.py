@@ -32,6 +32,12 @@ API_URL = "https://sanatani-ff-api.vercel.app/like?uid={uid}&server_name={region
 BAN_CHK_URL = "https://sanatani-ff-id-ban-chker.vercel.app/uditanshu-region/ban-info"
 INFO_API_URL = "https://infobot-mocha.vercel.app/player"
 
+REACT_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/setMessageReaction"
+
+# 🎲 Random emoji list
+EMOJI_LIST = ["👍", "❤️", "😂", "🔥", " 😮", "😢", "👏", "🎉", "👀", "😎"]
+
+
 TIMEZONES = {
     "ind": pytz.timezone("Asia/Kolkata"),
     "eu": pytz.timezone("Europe/Lisbon"),
@@ -81,6 +87,22 @@ def format_section(title, data_dict):
     for key, value in data_dict.items():
         lines.append(f"• <b>{escape_html(str(key))}</b>: {escape_html(value)}")
     return "\n".join(lines)
+
+def add_random_reaction(chat_id, message_id):
+    emoji = random.choice(EMOJI_LIST)
+    payload = {
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "reaction": [
+            {
+                "type": "emoji",
+                "emoji": emoji
+            }
+        ]
+    }
+
+    response = requests.post(REACT_API_URL, json=payload)
+    print(f"Added '{emoji}' reaction: {response.status_code}, {response.text}")
 
 def restricted_group(func):
     def wrapper(msg):
@@ -396,6 +418,10 @@ def setremain_cmd(msg):
     remaining_likes = int(parts[1])
     safe_reply(msg, f"✅ *Remaining Likes updated to:* `{remaining_likes}`", parse_mode="Markdown")
 
+@bot.message_handler(func=lambda message: True)
+def handle_message(message):
+    add_random_reaction(message.chat.id, message.message_id)
+    
 @bot.message_handler(commands=['promo'])
 @restricted_group
 def promo_cmd(msg):
