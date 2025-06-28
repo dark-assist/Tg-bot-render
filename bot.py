@@ -283,7 +283,7 @@ def handle_banner(message):
 
         uid = args[1]
         region = args[2]
-        url = f"https://aditya-banner-v6op.onrender.com/banner-image?uid={uid}&region={region}"
+        url = f"https://aditya-banner-v11op.onrender.com/banner-image?uid={uid}&region={region}"
 
         response = requests.get(url)
         if response.status_code == 200:
@@ -300,6 +300,41 @@ def handle_banner(message):
             bot.reply_to(message, "Failed to fetch banner.", reply_to_message_id=message.message_id)
     except Exception as e:
         bot.reply_to(message, f"Error: {str(e)}", reply_to_message_id=message.message_id)
+
+@bot.message_handler(commands=['outfit'])
+def handle_banner(message):
+    chat_id = message.chat.id
+
+    if not is_authorized(chat_id):
+        bot.reply_to(message, "Sorry, this bot can only be used in authorized groups.")
+        return
+
+    try:
+        args = message.text.split()
+        if len(args) != 3:
+            bot.reply_to(message, "Usage: /outfit <uid> <region>", reply_to_message_id=message.message_id)
+            return
+
+        uid = args[1]
+        region = args[2]
+        url = f"https://aditya-outfit-v11op.onrender.com/outfit-image?uid={uid}&region={region}"
+
+        response = requests.get(url)
+        if response.status_code == 200:
+            img = Image.open(BytesIO(response.content)).convert("RGBA")
+            img.thumbnail((512, 512))
+            output = BytesIO()
+            output.name = "sticker.webp"
+            img.save(output, format="WEBP")
+            output.seek(0)
+
+            # Send sticker as reply to user's message
+            bot.send_sticker(chat_id, output, reply_to_message_id=message.message_id)
+        else:
+            bot.reply_to(message, "Failed to fetch outfit.", reply_to_message_id=message.message_id)
+    except Exception as e:
+        bot.reply_to(message, f"Error: {str(e)}", reply_to_message_id=message.message_id)
+            
 
 @bot.message_handler(func=lambda m: m.chat.type == 'private')
 def block_private(message):
