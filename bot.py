@@ -12,7 +12,7 @@ from io import BytesIO
 from PIL import Image
 
 # Configuration
-BOT_TOKEN = "7799333321:AAFnYX39VqF615G0I19SRxCQqQamV3BwHPM"
+BOT_TOKEN = "7799333321:AAH0UrNQHW-JD3N7G9UPcYqmRYy6R4JT7q4"
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
